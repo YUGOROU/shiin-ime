@@ -38,7 +38,7 @@ final class ShiinInferenceEngine {
         guard let (encOut, hInit) = runEncoder(encoder,
                                                srcLeft: srcLeft,
                                                mask: maskLeft) else { return [] }
-        return beamSearch(decoder, encOut: encOut, hInit: hInit, mask: maskLeft)
+        return diverseBeamSearch(decoder, encOut: encOut, hInit: hInit, mask: maskLeft)
     }
 
     // MARK: - Model loading
@@ -121,57 +121,86 @@ final class ShiinInferenceEngine {
         return (encOut, hInit)
     }
 
-    private func beamSearch(_ model: MLModel,
-                            encOut: MLMultiArray, hInit: MLMultiArray,
-                            mask: MLMultiArray,
-                            beam: Int = 5, maxLen: Int = 72) -> [String] {
-        struct B { let lp: Float; let toks: [Int]; let h: MLMultiArray }
-        var live: [B] = [B(lp: 0, toks: [SOS], h: hInit)]
-        var done: [(lp: Float, toks: [Int])] = []
+    private func diverseBeamSearch(_ model: MLModel,
+                                    encOut: MLMultiArray, hInit: MLMultiArray,
+                                    mask: MLMultiArray,
+                                    numGroups: Int = 3,
+                                    beamPerGroup: Int = 3,
+                                    diversity: Float = 0.8,
+                                    maxLen: Int = 72) -> [String] {
+        struct Beam { let lp: Float; let toks: [Int]; let h: MLMultiArray }
+
+        var groups: [[Beam]] = (0..<numGroups).map { _ in
+            [Beam(lp: 0, toks: [SOS], h: copyArray(hInit))]
+        }
+        var doneGroups: [[(lp: Float, toks: [Int])]] = Array(repeating: [], count: numGroups)
 
         for _ in 0..<maxLen {
-            guard !live.isEmpty else { break }
-            var next = [B]()
-            for b in live {
-                if b.toks.last == EOS {
-                    let norm = b.lp / Float(max(b.toks.count - 1, 1))
-                    done.append((norm, b.toks))
-                    continue
-                }
-                let tok = try! MLMultiArray(shape: [1], dataType: .int32)
-                tok[0] = NSNumber(value: b.toks.last!)
-                guard let inp = try? MLDictionaryFeatureProvider(dictionary: [
-                          "tok": tok, "h": b.h, "enc_out": encOut, "attn_mask": mask]),
-                      let out    = try? model.prediction(from: inp),
-                      let logits = out.featureValue(for: "logits")?.multiArrayValue,
-                      let hNewRaw = out.featureValue(for: "h_new")?.multiArrayValue else { continue }
-                let hNew = copyArray(hNewRaw)
+            var prevSelected: [Int] = []
 
-                let lps = logSoftmax(logits)
-                let topK = (0..<VSZ).map { ($0, lps[$0]) }
-                    .sorted { $0.1 > $1.1 }
-                    .prefix(beam)
-                for (idx, lp) in topK {
-                    next.append(B(lp: b.lp + lp, toks: b.toks + [idx], h: hNew))
+            for g in 0..<numGroups {
+                var next: [Beam] = []
+                var thisSelected: [Int] = []
+
+                for b in groups[g] {
+                    if b.toks.last == EOS {
+                        doneGroups[g].append((b.lp / Float(max(b.toks.count - 1, 1)), b.toks))
+                        continue
+                    }
+                    let tokArr = try! MLMultiArray(shape: [1], dataType: .int32)
+                    tokArr[0] = NSNumber(value: b.toks.last!)
+                    guard let inp = try? MLDictionaryFeatureProvider(dictionary: [
+                                  "tok": tokArr, "h": b.h,
+                                  "enc_out": encOut, "attn_mask": mask]),
+                          let out     = try? model.prediction(from: inp),
+                          let logits  = out.featureValue(for: "logits")?.multiArrayValue,
+                          let hNewRaw = out.featureValue(for: "h_new")?.multiArrayValue
+                    else { continue }
+                    let hNew = copyArray(hNewRaw)
+
+                    var lps = logSoftmax(logits)
+
+                    if g > 0 {
+                        var counts = [Int: Int]()
+                        for t in prevSelected { counts[t, default: 0] += 1 }
+                        for (t, c) in counts where t < VSZ {
+                            lps[t] -= diversity * Float(c)
+                        }
+                    }
+
+                    for (idx, lp) in (0..<VSZ).map({ ($0, lps[$0]) })
+                                               .sorted(by: { $0.1 > $1.1 })
+                                               .prefix(beamPerGroup) {
+                        next.append(Beam(lp: b.lp + lp, toks: b.toks + [idx], h: hNew))
+                        thisSelected.append(idx)
+                    }
                 }
+                next.sort { $0.lp > $1.lp }
+                groups[g] = Array(next.prefix(beamPerGroup))
+                prevSelected.append(contentsOf: thisSelected)
             }
-            next.sort { $0.lp > $1.lp }
-            live = Array(next.prefix(beam))
-            if done.count >= beam { break }
         }
-        // Collect remaining live beams
-        for b in live {
-            let norm = b.lp / Float(max(b.toks.count - 1, 1))
-            done.append((norm, b.toks))
+
+        // Best beam from each group first, then remaining by score
+        var primary: [(lp: Float, toks: [Int])] = []
+        var secondary: [(lp: Float, toks: [Int])] = []
+        for g in 0..<numGroups {
+            var all = doneGroups[g]
+            for b in groups[g] { all.append((b.lp / Float(max(b.toks.count - 1, 1)), b.toks)) }
+            all.sort { $0.lp > $1.lp }
+            if let best = all.first { primary.append(best) }
+            secondary.append(contentsOf: all.dropFirst())
         }
-        done.sort { $0.lp > $1.lp }
+        secondary.sort { $0.lp > $1.lp }
 
         var seen = Set<String>()
-        return done.compactMap { item -> String? in
+        var result: [String] = []
+        for item in primary + secondary {
+            guard result.count < 3 else { break }
             let s = decodeTokens(item.toks)
-            guard !s.isEmpty, seen.insert(s).inserted else { return nil }
-            return s
-        }.prefix(3).map { $0 }
+            if !s.isEmpty, seen.insert(s).inserted { result.append(s) }
+        }
+        return result
     }
 
     private func copyArray(_ src: MLMultiArray) -> MLMultiArray {
