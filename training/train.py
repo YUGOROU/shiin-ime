@@ -203,6 +203,7 @@ class Encoder(nn.Module):
         enc_layer  = nn.TransformerEncoderLayer(
             emb, nhead, dim_feedforward=hid * 2,
             dropout=drop, batch_first=True, norm_first=True,
+            enable_nested_tensor=False,
         )
         self.tf   = nn.TransformerEncoder(enc_layer, layers)
         self.proj = nn.Linear(emb, hid)
