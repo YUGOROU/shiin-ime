@@ -1,9 +1,22 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "cutlet>=0.4",
+#   "fugashi>=1.3",
+#   "unidic-lite>=1.0",
+#   "huggingface_hub>=0.23",
+#   "hf_transfer>=0.1",
+#   "pyarrow>=15",
+# ]
+# ///
 """
-preprocess.py — 子音のみIME 前処理パイプライン
+preprocess.py — 子音のみIME 前処理パイプライン (Phase 2)
 
-datasets streaming=True の不安定な HTTP Range リクエストを廃止。
-huggingface_hub でシャードを丸ごとダウンロード → pyarrow でローカル読み込み。
-HF_TOKEN が設定されている場合、完了後に JSONL を HuggingFace Dataset (private) としてアップロード。
+Kakolog は専用スクリプト preprocess_kakolog.py で処理。
+
+出力形式 (JSONL):
+  {"consonants":"wtsh","reading":"わたし","source":"wiki","type":"word"}
+  {"consonants":"kywhrds","reading":"きょうははれです","source":"wiki","type":"sentence"}
 """
 
 import os
@@ -27,24 +40,30 @@ VOWELS   = re.compile(r"[aeiou]")
 _KANA_RE = re.compile(r"[぀-ヿ一-鿿]")
 _HTML_RE = re.compile(r"<[^>]+>")
 
-# (hf_id, split, text_col, max_docs)
+# Kakolog は preprocess_kakolog.py で処理
 DATASETS: dict[str, tuple] = {
-    "wiki":     ("hpprc/jawiki-paragraphs",        "train", "text",     None),
-    "cc100":    ("range3/cc100-ja",                 "train", "text",     5_000_000),
-    "kakolog":  ("KakologArchives/KakologArchives",  "train", "text",     5_000_000),
-    "livedoor": ("shunk031/livedoor-news-corpus",    "train", "sentence", None),
+    "wiki":     ("hpprc/jawiki-paragraphs",       "train", "text",     None),
+    "cc100":    ("range3/cc100-ja",                "train", "text",     5_000_000),
+    "livedoor": ("shunk031/livedoor-news-corpus",  "train", "sentence", None),
 }
 
+
+def kata_to_hira(s: str) -> str:
+    """カタカナ → ひらがな。ー など対応するひらがながない文字はそのまま残す。"""
+    return "".join(
+        chr(ord(c) - 0x60) if 0x30A1 <= ord(c) <= 0x30F6 else c
+        for c in s
+    )
 
 
 # ── テキストフィルタ ──────────────────────────────────────────────────────
 def is_valid(text: str) -> bool:
-    if len(text) < 2:                                           return False
-    if _HTML_RE.search(text):                                   return False
+    if len(text) < 6:                                            return False
+    if _HTML_RE.search(text):                                    return False
     ascii_alnum = sum(c.isascii() and c.isalnum() for c in text)
-    if ascii_alnum / len(text) > 0.70:                         return False
-    if not _KANA_RE.search(text):                              return False
-    if re.fullmatch(r"[wWｗWＷ\s！？。、…・]+", text):          return False
+    if ascii_alnum / len(text) > 0.70:                          return False
+    if not _KANA_RE.search(text):                               return False
+    if re.fullmatch(r"[wWｗWＷ\s！？。、…・]+", text):           return False
     return True
 
 
@@ -54,21 +73,23 @@ def _proc_chunk(args: tuple[list[str], str]) -> list[bytes]:
     import sys
     try:
         katsu = cutlet.Cutlet()
+        import fugashi as _fugashi
+        tagger = _fugashi.Tagger()
     except Exception as e:
-        print(f"[_proc_chunk] cutlet.Cutlet() failed: {e}", file=sys.stderr, flush=True)
+        print(f"[_proc_chunk] init failed: {e}", file=sys.stderr, flush=True)
         raise
 
-    # Sanity-check: MeCab 辞書が機能しているか確認
     _test = re.sub(r"[^a-z\s]", "", katsu.romaji("東京").lower())
     if not _test:
         raise RuntimeError(
-            "cutlet returned no ASCII for '東京' — MeCab/unidic not working. "
-            "Run: uv pip install --system unidic && python -m unidic download"
+            "cutlet returned no ASCII — MeCab/unidic not working. "
+            "Run: python -m unidic download"
         )
 
     out: list[bytes] = []
     source_b = source.encode()
     err_count = 0
+
     for raw in texts:
         text = re.sub(r"[\U00010000-\U0010ffff]", "", raw)
         for sent in re.split(r"[。！？\n]+", text):
@@ -76,19 +97,46 @@ def _proc_chunk(args: tuple[list[str], str]) -> list[bytes]:
             if not is_valid(sent):
                 continue
             try:
-                rom = katsu.romaji(sent).lower()
-                rom = re.sub(r"[^a-z\s]", "", rom)
-                for word in rom.split():
-                    cons = VOWELS.sub("", word)
+                words_parsed = list(tagger(sent))
+
+                # ── 文レベルペア ──────────────────────────────────────────
+                sent_hira = kata_to_hira("".join(
+                    w.feature.kana or "" for w in words_parsed
+                ))
+                if not sent_hira:
+                    continue
+
+                sent_rom  = re.sub(r"[^a-z\s]", "", katsu.romaji(sent).lower())
+                sent_cons = VOWELS.sub("", sent_rom.replace(" ", ""))
+
+                if 2 <= len(sent_cons) <= 80 and 2 <= len(sent_hira) <= 150:
+                    hira_b = sent_hira.encode("utf-8")
                     out.append(
-                        b'{"consonants":"' + cons.encode() +
-                        b'","romaji":"'    + word.encode() +
-                        b'","source":"'    + source_b + b'"}\n'
+                        b'{"consonants":"' + sent_cons.encode() +
+                        b'","reading":"'   + hira_b +
+                        b'","source":"'    + source_b + b'","type":"sentence"}\n'
                     )
+
+                # ── 単語レベルペア ────────────────────────────────────────
+                for w in words_parsed:
+                    kana = w.feature.kana or ""
+                    if not kana or len(kana) < 2:
+                        continue
+                    word_hira = kata_to_hira(kana)
+                    word_rom  = re.sub(r"[^a-z\s]", "", katsu.romaji(w.surface).lower())
+                    word_cons = VOWELS.sub("", word_rom.replace(" ", ""))
+                    if 1 <= len(word_cons) <= 20 and 1 <= len(word_hira) <= 30:
+                        hira_b = word_hira.encode("utf-8")
+                        out.append(
+                            b'{"consonants":"' + word_cons.encode() +
+                            b'","reading":"'   + hira_b +
+                            b'","source":"'    + source_b + b'","type":"word"}\n'
+                        )
+
             except Exception as e:
                 err_count += 1
                 if err_count <= 3:
-                    print(f"[_proc_chunk] romaji error ({err_count}): {e} | {sent[:40]!r}",
+                    print(f"[_proc_chunk] error ({err_count}): {e} | {sent[:40]!r}",
                           file=sys.stderr, flush=True)
                 continue
     return out
@@ -120,9 +168,8 @@ def _writer(q: Queue, out_path: Path):
     log.info(f"Writer done: {written:,} pairs → {out_path}")
 
 
-# ── huggingface_hub 経由でシャードをダウンロードしてイテレート ───────────────
+# ── HF シャードダウンロード ────────────────────────────────────────────────
 def _find_text_col(col_names: list[str]) -> str | None:
-    """text / sentence / content など文字列列を優先探索"""
     for c in ("text", "sentence", "content", "body", "paragraph"):
         if c in col_names:
             return c
@@ -130,11 +177,6 @@ def _find_text_col(col_names: list[str]) -> str | None:
 
 
 def _iter_texts(hf_id: str, split: str, col: str, max_docs, token: str | None):
-    """
-    1. main ブランチの parquet シャードを探す
-    2. なければ refs/convert/parquet ブランチを探す (HF自動変換済みデータセット用)
-    3. どちらもなければ load_dataset(streaming=False) にフォールバック
-    """
     from huggingface_hub import list_repo_files
 
     def _find_shards(revision=None):
@@ -165,7 +207,6 @@ def _iter_texts(hf_id: str, split: str, col: str, max_docs, token: str | None):
 
 def _iter_parquet(hf_id: str, shards: list[str], col: str, max_docs, token,
                   revision: str | None = None):
-    """parquet シャードを hf_hub_download で丸ごとDL → pyarrow 読み込み"""
     from huggingface_hub import hf_hub_download
     import pyarrow.parquet as pq
 
@@ -176,8 +217,7 @@ def _iter_parquet(hf_id: str, shards: list[str], col: str, max_docs, token,
             log.info(f"  Downloading: {shard}")
             local_path = hf_hub_download(
                 repo_id=hf_id, filename=shard,
-                repo_type="dataset", token=token,
-                revision=revision,
+                repo_type="dataset", token=token, revision=revision,
             )
             table   = pq.read_table(local_path)
             use_col = col if col in table.schema.names else _find_text_col(table.schema.names)
@@ -199,7 +239,6 @@ def _iter_parquet(hf_id: str, shards: list[str], col: str, max_docs, token,
 
 
 def _iter_datasets_lib(hf_id: str, split: str, col: str, max_docs, token):
-    """datasets.load_dataset(streaming=False) でキャッシュDL後に読み込む"""
     from datasets import load_dataset
     try:
         ds = load_dataset(hf_id, split=split, token=token)
@@ -252,13 +291,10 @@ def preprocess_source(name: str, out_path: Path, n_workers: int, chunk_size: int
 # ── HuggingFace Dataset アップロード ────────────────────────────────────
 def _upload_to_hf(cache_dir: Path, args):
     token = os.environ.get("HF_TOKEN")
-    if not token:
+    if not token or not args.hf_dataset_repo:
         return
 
     from huggingface_hub import HfApi, DatasetCard
-
-    if not args.hf_dataset_repo:
-        return
 
     api      = HfApi(token=token)
     username = api.whoami()["name"]
@@ -290,7 +326,7 @@ private: true
 
 # shiin-ime-preprocess
 
-子音のみ日本語IME 訓練データセット。README は後で整理予定。
+子音のみ日本語IME 訓練データセット。
 
 ## Files
 {chr(10).join(f'- `data/{jf.name}`' for jf in jsonl_files)}
@@ -307,7 +343,7 @@ if __name__ == "__main__":
     ap.add_argument("--chunk-size", type=int, default=8000)
     ap.add_argument("--datasets",   nargs="+", default=list(DATASETS.keys()))
     ap.add_argument("--hf-dataset-repo", default="",
-                    help="HFデータセットリポジトリ名 (例: my-repo または username/my-repo)。空=アップロードしない")
+                    help="HFデータセットリポジトリ名。空=アップロードしない")
     args = ap.parse_args()
 
     log.info(f"CPU cores: {mp.cpu_count()}")
