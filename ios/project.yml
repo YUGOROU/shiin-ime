@@ -1,0 +1,65 @@
+name: ShiinIME
+options:
+  bundleIdPrefix: com.yugoito.shiinime
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  AzooKeyKanaKanjiConverter:
+    url: https://github.com/azooKey/AzooKeyKanaKanjiConverter
+    from: "0.11.0"
+
+targets:
+  ShiinIMEApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources: ShiinIMEApp
+    info:
+      path: ShiinIMEApp/Info.plist
+      properties:
+        CFBundleDisplayName: ShiinIME
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yugoito.shiinime
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.10"
+    dependencies:
+      - target: ShiinIMEKeyboard
+
+  ShiinIMEKeyboard:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: ShiinIMEKeyboard/Sources
+      - path: ShiinIMEKeyboard/Resources/encoder.mlpackage
+        buildPhase: resources
+        type: folder
+      - path: ShiinIMEKeyboard/Resources/decoder_step.mlpackage
+        buildPhase: resources
+        type: folder
+      - path: ShiinIMEKeyboard/Resources/vocab.json
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yugoito.shiinime.keyboard
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.10"
+    dependencies:
+      - package: AzooKeyKanaKanjiConverter
+        product: KanaKanjiConverterModuleWithDefaultDictionary
+    info:
+      path: ShiinIMEKeyboard/Info.plist
+      properties:
+        CFBundleDisplayName: Shiin IME
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.keyboard-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
+          NSExtensionAttributes:
+            IsASCIICapable: YES
+            PrefersRightToLeft: NO
+            PrimaryLanguage: ja-JP
+            RequestsOpenAccess: NO

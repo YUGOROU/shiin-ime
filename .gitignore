@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.uv/
+
+# Training outputs (generated artifacts)
+training/outputs/
+training/*.log
+
+# Claude internal docs and tool files
+MEMORY.md
+*HANDOFF*.md
+.claude/
+.agents/
+
+# Root-level old training files (cleaned versions are in training/)
+/coreml_convert.py
+/preprocess.py
+/train.py
+/setup_vastai.sh
+/test_coreml_beam.py
+/validate_coreml.py
+/kakolog_loading_guide.md
+/ime-data-2026-05-17.csv
+/docs/
+
+# Misc internal
+outputs/
+
+# Xcode
+ios/ShiinIME.xcodeproj/xcuserdata/
+ios/ShiinIME.xcodeproj/project.xcworkspace/xcuserdata/
+ios/.build/
+DerivedData/
+*.xcscmblueprint
+
+# macOS
+.DS_Store

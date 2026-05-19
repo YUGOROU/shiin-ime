@@ -1,0 +1,491 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0982CEBA6E760B4F9E0150DA /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB2646EF48C5C23E42CA178F /* KeyboardViewController.swift */; };
+		42D6B91187C213B5612600B9 /* AzooKeyConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB395208CE7E989529427A8A /* AzooKeyConverter.swift */; };
+		595E76406A5F8F9C710802DE /* decoder_step.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 094302C054259203C80C1BE4 /* decoder_step.mlpackage */; };
+		77BB46AD7BE2A31D490E5A4A /* KanaKanjiConverterModuleWithDefaultDictionary in Frameworks */ = {isa = PBXBuildFile; productRef = FD6A13F3C63A94ABF4F17667 /* KanaKanjiConverterModuleWithDefaultDictionary */; };
+		97652FFCF819A37E812E2353 /* vocab.json in Resources */ = {isa = PBXBuildFile; fileRef = FF65288D054A78C84C5C1ECA /* vocab.json */; };
+		BCC0EEB98B814063A06C0195 /* ShiinIMEKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EE230BA3DD39874AEEB94379 /* ShiinIMEKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BD9F9DF3FEDD5AE91F2A489A /* encoder.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 740544C170B566E657EF04B0 /* encoder.mlpackage */; };
+		DCA21E8BA4BECB53555A9264 /* ShiinIMEApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DFFB4676AD4CD54A6748B8 /* ShiinIMEApp.swift */; };
+		E2C7196619DD49D9250CDBBA /* ShiinInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4677C2A4FD827C13DB744D37 /* ShiinInferenceEngine.swift */; };
+		F6917B0343F3726CC98CDB71 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E752B851951E6476F31F2F51 /* ContentView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D92C3E5E179B228FCA79EA31 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C4CE5D2DF4A3E293FF8E968A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8AE142EEA783579E9A3851C9;
+			remoteInfo = ShiinIMEKeyboard;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		46144B9852ADA92D6E9FF96F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BCC0EEB98B814063A06C0195 /* ShiinIMEKeyboard.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		094302C054259203C80C1BE4 /* decoder_step.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder; name = decoder_step.mlpackage; path = ShiinIMEKeyboard/Resources/decoder_step.mlpackage; sourceTree = SOURCE_ROOT; };
+		4677C2A4FD827C13DB744D37 /* ShiinInferenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShiinInferenceEngine.swift; sourceTree = "<group>"; };
+		47DFFB4676AD4CD54A6748B8 /* ShiinIMEApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShiinIMEApp.swift; sourceTree = "<group>"; };
+		740544C170B566E657EF04B0 /* encoder.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder; name = encoder.mlpackage; path = ShiinIMEKeyboard/Resources/encoder.mlpackage; sourceTree = SOURCE_ROOT; };
+		8AB651BCE7A2AAD5843828CD /* ShiinIMEApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShiinIMEApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB395208CE7E989529427A8A /* AzooKeyConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AzooKeyConverter.swift; sourceTree = "<group>"; };
+		CB2646EF48C5C23E42CA178F /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		E4533BCC39E11E3F0C2DF668 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E752B851951E6476F31F2F51 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		EE230BA3DD39874AEEB94379 /* ShiinIMEKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiinIMEKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF65288D054A78C84C5C1ECA /* vocab.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = vocab.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8AAC5E183C83667B1F20595A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				77BB46AD7BE2A31D490E5A4A /* KanaKanjiConverterModuleWithDefaultDictionary in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		61E098853EF502773F8DB21A = {
+			isa = PBXGroup;
+			children = (
+				F7F9920C2EA9F1CC81934A69 /* ShiinIMEApp */,
+				A867B3830EC99337266A3E39 /* ShiinIMEKeyboard */,
+				F7F72157035A03197767DEBE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A2E0EA1284ACF876D871EC5D /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				BB395208CE7E989529427A8A /* AzooKeyConverter.swift */,
+				CB2646EF48C5C23E42CA178F /* KeyboardViewController.swift */,
+				4677C2A4FD827C13DB744D37 /* ShiinInferenceEngine.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		A867B3830EC99337266A3E39 /* ShiinIMEKeyboard */ = {
+			isa = PBXGroup;
+			children = (
+				FF83E3BC1E9B103B58003436 /* Resources */,
+				A2E0EA1284ACF876D871EC5D /* Sources */,
+			);
+			path = ShiinIMEKeyboard;
+			sourceTree = "<group>";
+		};
+		F7F72157035A03197767DEBE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8AB651BCE7A2AAD5843828CD /* ShiinIMEApp.app */,
+				EE230BA3DD39874AEEB94379 /* ShiinIMEKeyboard.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F7F9920C2EA9F1CC81934A69 /* ShiinIMEApp */ = {
+			isa = PBXGroup;
+			children = (
+				E752B851951E6476F31F2F51 /* ContentView.swift */,
+				E4533BCC39E11E3F0C2DF668 /* Info.plist */,
+				47DFFB4676AD4CD54A6748B8 /* ShiinIMEApp.swift */,
+			);
+			path = ShiinIMEApp;
+			sourceTree = "<group>";
+		};
+		FF83E3BC1E9B103B58003436 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				094302C054259203C80C1BE4 /* decoder_step.mlpackage */,
+				740544C170B566E657EF04B0 /* encoder.mlpackage */,
+				FF65288D054A78C84C5C1ECA /* vocab.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		53573741EE04F63A4DF45603 /* ShiinIMEApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7516388952AA8A446B439A23 /* Build configuration list for PBXNativeTarget "ShiinIMEApp" */;
+			buildPhases = (
+				CF3FAA589771BCB00652E9D1 /* Sources */,
+				46144B9852ADA92D6E9FF96F /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7814CC58201B97392366DE4E /* PBXTargetDependency */,
+			);
+			name = ShiinIMEApp;
+			packageProductDependencies = (
+			);
+			productName = ShiinIMEApp;
+			productReference = 8AB651BCE7A2AAD5843828CD /* ShiinIMEApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8AE142EEA783579E9A3851C9 /* ShiinIMEKeyboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3566CAD355B6DACBA6C9FE8F /* Build configuration list for PBXNativeTarget "ShiinIMEKeyboard" */;
+			buildPhases = (
+				43B33453899126F1063A3D9C /* Sources */,
+				0DB2074FADAEE577A392AEC7 /* Resources */,
+				8AAC5E183C83667B1F20595A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShiinIMEKeyboard;
+			packageProductDependencies = (
+				FD6A13F3C63A94ABF4F17667 /* KanaKanjiConverterModuleWithDefaultDictionary */,
+			);
+			productName = ShiinIMEKeyboard;
+			productReference = EE230BA3DD39874AEEB94379 /* ShiinIMEKeyboard.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C4CE5D2DF4A3E293FF8E968A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = C1D3F197DAB73F2F1D49F338 /* Build configuration list for PBXProject "ShiinIME" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 61E098853EF502773F8DB21A;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FB1FABA40254C0D53171D1EA /* XCRemoteSwiftPackageReference "AzooKeyKanaKanjiConverter" */,
+			);
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				53573741EE04F63A4DF45603 /* ShiinIMEApp */,
+				8AE142EEA783579E9A3851C9 /* ShiinIMEKeyboard */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0DB2074FADAEE577A392AEC7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				595E76406A5F8F9C710802DE /* decoder_step.mlpackage in Resources */,
+				BD9F9DF3FEDD5AE91F2A489A /* encoder.mlpackage in Resources */,
+				97652FFCF819A37E812E2353 /* vocab.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		43B33453899126F1063A3D9C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42D6B91187C213B5612600B9 /* AzooKeyConverter.swift in Sources */,
+				0982CEBA6E760B4F9E0150DA /* KeyboardViewController.swift in Sources */,
+				E2C7196619DD49D9250CDBBA /* ShiinInferenceEngine.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF3FAA589771BCB00652E9D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6917B0343F3726CC98CDB71 /* ContentView.swift in Sources */,
+				DCA21E8BA4BECB53555A9264 /* ShiinIMEApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7814CC58201B97392366DE4E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8AE142EEA783579E9A3851C9 /* ShiinIMEKeyboard */;
+			targetProxy = D92C3E5E179B228FCA79EA31 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		183EF8225F07B4C5B5225686 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 27X2W9ZM42;
+				INFOPLIST_FILE = ShiinIMEKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.yugoito.shiinime.keyboard;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4F6F12ED86E835A0E03BD12B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 27X2W9ZM42;
+				INFOPLIST_FILE = ShiinIMEApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.yugoito.shiinime;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		687738B80247B844B31ADFA4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		96906A8B9641355C17E99A79 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 27X2W9ZM42;
+				INFOPLIST_FILE = ShiinIMEApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.yugoito.shiinime;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9B95B0F46B546356CFF2A4DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 27X2W9ZM42;
+				INFOPLIST_FILE = ShiinIMEKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.yugoito.shiinime.keyboard;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E959FC022BBE3F7E841F685F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3566CAD355B6DACBA6C9FE8F /* Build configuration list for PBXNativeTarget "ShiinIMEKeyboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				183EF8225F07B4C5B5225686 /* Debug */,
+				9B95B0F46B546356CFF2A4DA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7516388952AA8A446B439A23 /* Build configuration list for PBXNativeTarget "ShiinIMEApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96906A8B9641355C17E99A79 /* Debug */,
+				4F6F12ED86E835A0E03BD12B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C1D3F197DAB73F2F1D49F338 /* Build configuration list for PBXProject "ShiinIME" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				687738B80247B844B31ADFA4 /* Debug */,
+				E959FC022BBE3F7E841F685F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FB1FABA40254C0D53171D1EA /* XCRemoteSwiftPackageReference "AzooKeyKanaKanjiConverter" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/azooKey/AzooKeyKanaKanjiConverter";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FD6A13F3C63A94ABF4F17667 /* KanaKanjiConverterModuleWithDefaultDictionary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FB1FABA40254C0D53171D1EA /* XCRemoteSwiftPackageReference "AzooKeyKanaKanjiConverter" */;
+			productName = KanaKanjiConverterModuleWithDefaultDictionary;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C4CE5D2DF4A3E293FF8E968A /* Project object */;
+}
