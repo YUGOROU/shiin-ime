@@ -89,7 +89,7 @@ if [[ -n "${HF_TOKEN:-}" ]]; then
   echo "[setup] Logging in to HuggingFace..."
   uv run --with huggingface_hub python -c \
     "from huggingface_hub import login; login(token='$HF_TOKEN', add_to_git_credential=False)"
-  export HF_HUB_ENABLE_HF_TRANSFER=1
+  export HF_XET_HIGH_PERFORMANCE=1
 fi
 
 # ── tmux セッション ─────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ STEPS="${TRAIN_STEPS:-10000}"
 [[ -n "${HF_TOKEN:-}" ]]        && tmux send-keys -t "$SESSION" "export HF_TOKEN='$HF_TOKEN'" Enter
 [[ -n "${HF_DATASET_REPO:-}" ]] && tmux send-keys -t "$SESSION" "export HF_DATASET_REPO='$HF_DATASET_REPO'" Enter
 [[ -n "${HF_MODEL_REPO:-}" ]]   && tmux send-keys -t "$SESSION" "export HF_MODEL_REPO='$HF_MODEL_REPO'" Enter
-tmux send-keys -t "$SESSION" "export HF_HUB_ENABLE_HF_TRANSFER=1" Enter
+tmux send-keys -t "$SESSION" "export HF_XET_HIGH_PERFORMANCE=1" Enter
 [[ "$BLACKWELL" == "1" ]] && tmux send-keys -t "$SESSION" "export TORCHDYNAMO_DISABLE=1" Enter
 tmux send-keys -t "$SESSION" "cd $WORK_DIR/training" Enter
 
