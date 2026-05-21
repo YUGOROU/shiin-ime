@@ -40,23 +40,31 @@ fi
 mkdir -p "$DATA_DIR" "$WORK_DIR/outputs"
 cd "$WORK_DIR/training"
 
-# ── GPU 確認・Blackwell 自動検出 ──────────────────────────────────────
+# ── GPU 確認・互換 PyTorch 自動インストール ────────────────────────────
 BLACKWELL=0
-python3 -c "
+python3 - <<'PYCHECK'
+import sys, subprocess
 import torch
-print(f'PyTorch: {torch.__version__}')
-if torch.cuda.is_available():
-    print(f'GPU: {torch.cuda.get_device_name(0)}')
-    cc = torch.cuda.get_device_capability(0)
-    print(f'Compute Capability: {cc[0]}.{cc[1]}')
-    if cc[0] >= 12:
-        print('Blackwell detected — torch.compile disabled')
-        exit(1)
-    else:
-        print('torch.compile available')
-else:
-    print('WARNING: CUDA not available')
-" && BLACKWELL=0 || BLACKWELL=1
+cc = torch.cuda.get_device_capability(0) if torch.cuda.is_available() else (0,0)
+print(f"PyTorch: {torch.__version__}  GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'N/A'}  CC: {cc[0]}.{cc[1]}")
+
+# sm_70 (V100) 以下は PyTorch 2.5+ で削除済み → 2.4.0 に下げる
+if cc[0] < 8 and cc != (0,0):
+    import re
+    major = int(re.match(r'(\d+)', torch.__version__).group(1))
+    minor = int(re.split(r'[.\+]', torch.__version__)[1])
+    if major > 2 or (major == 2 and minor >= 5):
+        print(f"[setup] CC {cc[0]}.{cc[1]} は PyTorch 2.5+ 非対応 → 2.4.0+cu121 をインストール中...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install",
+            "torch==2.4.0+cu121", "--index-url",
+            "https://download.pytorch.org/whl/cu121", "-q"])
+        print("[setup] PyTorch 2.4.0 インストール完了")
+
+# Blackwell (sm_12+) は torch.compile 無効
+if cc[0] >= 12:
+    sys.exit(1)
+PYCHECK
+BLACKWELL=$?
 
 # ── uv インストール ────────────────────────────────────────────────────
 if ! command -v uv &>/dev/null; then
