@@ -40,7 +40,8 @@ fi
 mkdir -p "$DATA_DIR" "$WORK_DIR/outputs"
 cd "$WORK_DIR/training"
 
-# ── RTX 5090 (Blackwell) 対応確認 ─────────────────────────────────────
+# ── GPU 確認・Blackwell 自動検出 ──────────────────────────────────────
+BLACKWELL=0
 python3 -c "
 import torch
 print(f'PyTorch: {torch.__version__}')
@@ -49,10 +50,13 @@ if torch.cuda.is_available():
     cc = torch.cuda.get_device_capability(0)
     print(f'Compute Capability: {cc[0]}.{cc[1]}')
     if cc[0] >= 12:
-        print('Blackwell detected — TORCHDYNAMO_DISABLE=1 required')
+        print('Blackwell detected — torch.compile disabled')
+        exit(1)
+    else:
+        print('torch.compile available')
 else:
     print('WARNING: CUDA not available')
-"
+" && BLACKWELL=0 || BLACKWELL=1
 
 # ── uv インストール ────────────────────────────────────────────────────
 if ! command -v uv &>/dev/null; then
@@ -83,8 +87,7 @@ BATCH="${TRAIN_BATCH:-2048}"
 [[ -n "${HF_DATASET_REPO:-}" ]] && tmux send-keys -t "$SESSION" "export HF_DATASET_REPO='$HF_DATASET_REPO'" Enter
 [[ -n "${HF_MODEL_REPO:-}" ]]   && tmux send-keys -t "$SESSION" "export HF_MODEL_REPO='$HF_MODEL_REPO'" Enter
 tmux send-keys -t "$SESSION" "export HF_HUB_ENABLE_HF_TRANSFER=1" Enter
-# RTX 5090 (Blackwell sm_120) では torch.compile が未対応のため無効化
-tmux send-keys -t "$SESSION" "export TORCHDYNAMO_DISABLE=1" Enter
+[[ "$BLACKWELL" == "1" ]] && tmux send-keys -t "$SESSION" "export TORCHDYNAMO_DISABLE=1" Enter
 tmux send-keys -t "$SESSION" "cd $WORK_DIR/training" Enter
 
 # ── 訓練コマンド構築 ────────────────────────────────────────────────────
@@ -97,7 +100,13 @@ HF_MODEL_ARG=""
 TRACKIO_ARG=""
 [[ -n "${TRACKIO_SPACE:-}" ]] && TRACKIO_ARG="--trackio-space '$TRACKIO_SPACE'"
 
-TRAIN_CMD="TORCHDYNAMO_DISABLE=1 uv run train.py \
+NO_COMPILE_ARG=""
+[[ "$BLACKWELL" == "1" ]] && NO_COMPILE_ARG="--no-compile"
+
+TORCHDYNAMO_PREFIX=""
+[[ "$BLACKWELL" == "1" ]] && TORCHDYNAMO_PREFIX="TORCHDYNAMO_DISABLE=1"
+
+TRAIN_CMD="$TORCHDYNAMO_PREFIX uv run train.py \
   --data-dir $DATA_DIR \
   --out-dir  $WORK_DIR/outputs \
   --epochs   $EPOCHS \
@@ -111,7 +120,7 @@ TRAIN_CMD="TORCHDYNAMO_DISABLE=1 uv run train.py \
   --dropout  0.2 \
   --lr       1e-3 \
   --sentence-ratio 0.7 \
-  --no-compile \
+  $NO_COMPILE_ARG \
   $HF_DATASET_ARG \
   $HF_MODEL_ARG \
   $TRACKIO_ARG"
