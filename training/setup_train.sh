@@ -106,7 +106,12 @@ NO_COMPILE_ARG=""
 TORCHDYNAMO_PREFIX=""
 [[ "$BLACKWELL" == "1" ]] && TORCHDYNAMO_PREFIX="TORCHDYNAMO_DISABLE=1"
 
-TRAIN_CMD="$TORCHDYNAMO_PREFIX uv run train.py \
+# uv run は独立 venv を作るためシステムの PyTorch が見えない。
+# 非 torch 依存だけ pip でシステム環境に入れ、python で直接実行する。
+tmux send-keys -t "$SESSION" \
+  "pip install tqdm numpy 'huggingface_hub>=0.23' hf_transfer trackio --quiet" Enter
+
+TRAIN_CMD="$TORCHDYNAMO_PREFIX python train.py \
   --data-dir $DATA_DIR \
   --out-dir  $WORK_DIR/outputs \
   --epochs   $EPOCHS \
