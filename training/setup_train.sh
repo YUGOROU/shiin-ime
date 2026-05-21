@@ -66,6 +66,13 @@ if cc[0] >= 12:
 PYCHECK
 BLACKWELL=$?
 
+# C コンパイラがなければ torch.compile は動かない
+NO_CC=0
+if ! command -v gcc &>/dev/null && ! command -v cc &>/dev/null; then
+  echo "[setup] C compiler not found — torch.compile disabled"
+  NO_CC=1
+fi
+
 # ── uv インストール ────────────────────────────────────────────────────
 if ! command -v uv &>/dev/null; then
   echo "[setup] Installing uv..."
@@ -109,7 +116,7 @@ TRACKIO_ARG=""
 [[ -n "${TRACKIO_SPACE:-}" ]] && TRACKIO_ARG="--trackio-space '$TRACKIO_SPACE'"
 
 NO_COMPILE_ARG=""
-[[ "$BLACKWELL" == "1" ]] && NO_COMPILE_ARG="--no-compile"
+[[ "$BLACKWELL" == "1" || "$NO_CC" == "1" ]] && NO_COMPILE_ARG="--no-compile"
 
 TORCHDYNAMO_PREFIX=""
 [[ "$BLACKWELL" == "1" ]] && TORCHDYNAMO_PREFIX="TORCHDYNAMO_DISABLE=1"
