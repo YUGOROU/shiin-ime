@@ -340,7 +340,11 @@ def _download_dataset_from_hf(repo_id: str, data_dir: Path):
     from huggingface_hub import hf_hub_download, list_repo_files
     token = os.environ.get("HF_TOKEN")
 
-    api_repo = repo_id if "/" in repo_id else f"{repo_id}"
+    if "/" not in repo_id:
+        from huggingface_hub import HfApi
+        username = HfApi(token=token).whoami()["name"]
+        repo_id = f"{username}/{repo_id}"
+    api_repo = repo_id
     try:
         files = sorted(list_repo_files(api_repo, repo_type="dataset", token=token))
     except Exception as e:
