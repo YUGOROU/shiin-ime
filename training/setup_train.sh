@@ -99,6 +99,7 @@ tmux new-session -d -s "$SESSION" -x 220 -y 50
 WORKERS=$(nproc)
 EPOCHS="${TRAIN_EPOCHS:-10}"
 BATCH="${TRAIN_BATCH:-2048}"
+STEPS="${TRAIN_STEPS:-10000}"
 
 # tmux 内で環境変数を引き継ぐ
 [[ -n "${HF_TOKEN:-}" ]]        && tmux send-keys -t "$SESSION" "export HF_TOKEN='$HF_TOKEN'" Enter
@@ -143,6 +144,7 @@ TRAIN_CMD="$TORCHDYNAMO_PREFIX python train.py \
   --dropout  0.2 \
   --lr       1e-3 \
   --sentence-ratio 0.7 \
+  --max-train-steps $STEPS \
   $NO_COMPILE_ARG \
   $HF_DATASET_ARG \
   $HF_MODEL_ARG \
@@ -166,7 +168,7 @@ cat <<EOF
   TRACKIO_SPACE     : ${TRACKIO_SPACE:-"(not set — local only)"}
 
   Architecture: Transformer Encoder (3L, d=256, h=4) + GRU Decoder (2L)
-  Epochs: $EPOCHS  Batch: $BATCH
+  Epochs: $EPOCHS  Batch: $BATCH  Steps/epoch: $STEPS
 
   Expected outputs:
     $WORK_DIR/outputs/model_best.pt
