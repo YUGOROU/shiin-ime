@@ -559,8 +559,9 @@ def train(args):
                      dynamic_ncols=True, leave=True)
 
     for epoch in epoch_bar:
-        tr_ds.set_epoch(epoch)
-        va_ds.set_epoch(epoch)
+        data_epoch = ((epoch - 1) % args.epoch_cycle) if args.epoch_cycle else epoch
+        tr_ds.set_epoch(data_epoch)
+        va_ds.set_epoch(data_epoch)
         model.train()
         steps = 0
         tf    = max(0.0, 0.5 - 0.04 * epoch)
@@ -683,6 +684,8 @@ if __name__ == "__main__":
                     help="訓練バッチに占める sentence ペアの目標比率 (0.0-1.0)")
     ap.add_argument("--max-train-steps",type=int,   default=0,
                     help="0=全量")
+    ap.add_argument("--epoch-cycle",    type=int,   default=0,
+                    help="0=無効。N指定でデータスライスをN epochごとに繰り返す")
     ap.add_argument("--amp",            action="store_true",  default=True)
     ap.add_argument("--no-amp",         dest="amp",   action="store_false")
     ap.add_argument("--compile",        action="store_true",  default=True)

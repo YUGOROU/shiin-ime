@@ -100,6 +100,8 @@ WORKERS=$(nproc)
 EPOCHS="${TRAIN_EPOCHS:-10}"
 BATCH="${TRAIN_BATCH:-2048}"
 STEPS="${TRAIN_STEPS:-10000}"
+CYCLE="${EPOCH_CYCLE:-0}"
+RESUME_PATH="${RESUME_MODEL:-}"
 
 # tmux 内で環境変数を引き継ぐ
 [[ -n "${HF_TOKEN:-}" ]]        && tmux send-keys -t "$SESSION" "export HF_TOKEN='$HF_TOKEN'" Enter
@@ -145,6 +147,8 @@ TRAIN_CMD="$TORCHDYNAMO_PREFIX python train.py \
   --lr       1e-3 \
   --sentence-ratio 0.7 \
   --max-train-steps $STEPS \
+  --epoch-cycle     $CYCLE \
+  ${RESUME_PATH:+--resume $RESUME_PATH} \
   $NO_COMPILE_ARG \
   $HF_DATASET_ARG \
   $HF_MODEL_ARG \
