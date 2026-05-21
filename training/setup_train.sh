@@ -66,11 +66,14 @@ if cc[0] >= 12:
 PYCHECK
 BLACKWELL=$?
 
-# C コンパイラがなければ torch.compile は動かない
+# C コンパイラがなければ apt で入れる (torch.compile に必要)
 NO_CC=0
 if ! command -v gcc &>/dev/null && ! command -v cc &>/dev/null; then
-  echo "[setup] C compiler not found — torch.compile disabled"
-  NO_CC=1
+  echo "[setup] C compiler not found — installing gcc..."
+  apt-get update -qq && apt-get install -y -q gcc g++ && echo "[setup] gcc installed" || {
+    echo "[setup] gcc install failed — torch.compile disabled"
+    NO_CC=1
+  }
 fi
 
 # ── uv インストール ────────────────────────────────────────────────────
