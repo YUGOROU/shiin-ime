@@ -11,7 +11,7 @@
 
 | 項目 | 内容 |
 |------|------|
-| モデル | BiGRU (hidden=256, layers=2), ~3M params |
+| モデル | Transformer Encoder + GRU Decoder (hidden=256), ~1.3M params |
 | 入出力 | 子音列 (例: `wtsh`) → ローマ字候補 (例: `watashi`) |
 | 推論 | CoreML on-device, iOS KBExtension |
 | サイズ制約 | encoder+decoder ≦ 48MB (現在 7.02MB) |

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Shiin IME — Design</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f0eee9; }
+  body { font-family: -apple-system, system-ui, "SF Pro", sans-serif; }
+  @keyframes shiinCaret { 50% { opacity: 0; } }
+</style>
+
+<!-- React + Babel (pinned) -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Shared components -->
+<script src="predict.js"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="safari.jsx"></script>
+<script type="text/babel" src="keyboard.jsx"></script>
+<script type="text/babel" src="shiin-phone.jsx"></script>
+<script type="text/babel" src="companion-app.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#7B5BFF"
+}/*EDITMODE-END*/;
+
+// curated accent palette — purples, blues, greens, warm
+const ACCENT_OPTIONS = [
+  '#7B5BFF', // brand purple (default)
+  '#0A84FF', // iOS blue
+  '#FF375F', // hot pink/red
+  '#34C759', // green
+  '#FF9F0A', // amber
+  '#000000', // mono (high-contrast)
+];
+
+const VARIANTS = [
+  { id: 'a', name: 'A · Native',     subtitle: 'Pure iOS · weight encodes rank' },
+  { id: 'b', name: 'B · Confidence', subtitle: 'Tiny score bar under each candidate' },
+  { id: 'c', name: 'C · Filled',     subtitle: 'Accent fills cell from bottom = score' },
+];
+const CHOSEN = 'b';
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="chosen" title="Shiin IME · B案採用" subtitle="B (Confidence bars) で確定。Light / Dark 両方とコンパニオンアプリを並べています。キーをタップすると実際に入力されます。">
+          <DCArtboard id="chosen-light" label="Keyboard · Light" width={393} height={760}>
+            <ShiinPhone variant={CHOSEN} dark={false} accent={t.accent} />
+          </DCArtboard>
+          <DCArtboard id="chosen-dark" label="Keyboard · Dark" width={393} height={760}>
+            <ShiinPhone variant={CHOSEN} dark={true} accent={t.accent} />
+          </DCArtboard>
+          <DCArtboard id="hero-light" label="コンパニオンアプリ · Light" width={393} height={760}>
+            <CompanionHero dark={false} accent={t.accent} />
+          </DCArtboard>
+          <DCArtboard id="settings-light" label="設定 · Light" width={393} height={760}>
+            <CompanionSettings dark={false} accent={t.accent} />
+          </DCArtboard>
+          <DCArtboard id="settings-dark" label="設定 · Dark" width={393} height={760}>
+            <CompanionSettings dark={true} accent={t.accent} />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="reference" title="他案 (参考)" subtitle="A・Cは採用していませんが、比較のために残してあります。">
+          {VARIANTS.filter(v => v.id !== CHOSEN).map(v => (
+            <DCArtboard key={v.id} id={`ref-${v.id}`} label={v.name} width={393} height={760}>
+              <div style={{ opacity: 0.55, transition: 'opacity .2s' }}>
+                <ShiinPhone variant={v.id} dark={false} accent={t.accent} />
+              </div>
+            </DCArtboard>
+          ))}
+        </DCSection>
+
+        <DCSection id="detail" title="候補バー · Detail" subtitle="候補バーだけのクローズアップ。情報密度の比較用。">
+          {VARIANTS.map(v => (
+            <DCArtboard key={`d-${v.id}`} id={`detail-${v.id}`} label={v.id === CHOSEN ? `${v.name} ★ 採用` : v.name} width={420} height={140}>
+              <CandidateBarCloseup variant={v.id} accent={t.accent} chosen={v.id === CHOSEN} />
+            </DCArtboard>
+          ))}
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel>
+        <TweakSection label="Brand" />
+        <TweakColor
+          label="Accent"
+          value={t.accent}
+          options={ACCENT_OPTIONS}
+          onChange={(v) => setTweak('accent', v)}
+        />
+      </TweaksPanel>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
+// Brief card — sits in the first section as a "this is what we're looking at"
+// ─────────────────────────────────────────────────────────
+function BriefCard() {
+  return (
+    <div style={{
+      width: '100%', height: '100%', boxSizing: 'border-box',
+      background: '#fafafa', borderRadius: 16,
+      padding: '36px 32px',
+      display: 'flex', flexDirection: 'column', gap: 18,
+      fontFamily: '-apple-system, system-ui',
+      border: '0.5px solid rgba(60,50,40,0.10)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <ShiinMark accent="#7B5BFF" size={28} />
+        <div style={{
+          fontFamily: 'ui-monospace, "SF Mono", monospace', fontSize: 11,
+          color: 'rgba(60,50,40,0.55)', letterSpacing: 1, textTransform: 'uppercase',
+        }}>Design brief</div>
+      </div>
+      <div style={{
+        fontSize: 30, fontWeight: 700, lineHeight: 1.08, letterSpacing: -1,
+        color: '#1a1612', textWrap: 'balance',
+      }}>
+        子音だけで打つ、<br/>日本語IME。
+      </div>
+      <div style={{
+        fontSize: 13.5, lineHeight: 1.55, color: 'rgba(60,50,40,0.72)',
+        textWrap: 'pretty',
+      }}>
+        <code style={mono}>watashi</code> ではなく <code style={{...mono, color:'#7B5BFF', fontWeight:600}}>wtsh</code> で「私」を出す。
+        Transformer + GRU (~1.3Mパラメータ, CoreML) が読みを推定し、AzooKey が漢字に変換。
+        すべて端末内で完結。
+      </div>
+      <div style={{ height: 1, background: 'rgba(60,50,40,0.10)', margin: '4px 0' }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <Spec k="Structure"   v="Candidates · Buffer · Keys" />
+        <Spec k="Variants"    v="A Native · B Confidence · C Filled" />
+        <Spec k="Buffer"      v="Monospace · ▶ ktk" />
+        <Spec k="Vowel keys"  v="Visible but dimmed — taps are no-ops" />
+        <Spec k="Companion"   v="Onboarding + Settings (separate app)" />
+        <Spec k="Tweaks"      v="Accent · Light/Dark · Emphasis" />
+      </div>
+      <div style={{ flex: 1 }} />
+      <div style={{
+        fontSize: 11.5, color: 'rgba(60,50,40,0.55)', letterSpacing: -0.1,
+        padding: '10px 12px', background: 'rgba(123,91,255,0.06)',
+        borderRadius: 8, border: '0.5px solid rgba(123,91,255,0.18)',
+      }}>
+        Tip — tap any key in the phone artboards to actually type. Press <code style={mono}>space</code> with a buffer to commit the top candidate; <code style={mono}>⌫</code> peels back one consonant at a time.
+      </div>
+    </div>
+  );
+}
+const mono = {
+  fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+  fontSize: '0.92em', padding: '1px 5px', borderRadius: 4,
+  background: 'rgba(60,50,40,0.07)', color: '#1a1612',
+};
+function Spec({ k, v }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '92px 1fr', gap: 10, alignItems: 'baseline' }}>
+      <div style={{
+        fontFamily: 'ui-monospace, "SF Mono", monospace', fontSize: 11,
+        color: 'rgba(60,50,40,0.55)', letterSpacing: 0.5, textTransform: 'uppercase',
+      }}>{k}</div>
+      <div style={{ fontSize: 14, color: '#1a1612', letterSpacing: -0.1 }}>{v}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
+// Close-up of one candidate bar for the detail row
+// ─────────────────────────────────────────────────────────
+function CandidateBarCloseup({ variant, accent, chosen }) {
+  const pred = window.ShiinPredict.lookup('ktk');
+  return (
+    <div style={{
+      width: '100%', height: '100%', boxSizing: 'border-box',
+      background: '#D1D4DB', borderRadius: 12, padding: '8px 0 4px',
+      display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      position: 'relative',
+      outline: chosen ? `2px solid ${accent}` : 'none',
+      outlineOffset: chosen ? '2px' : 0,
+    }}>
+      {variant === 'a' && <CandidatesA candidates={pred.candidates} dark={false} accent={accent} onTap={()=>{}} />}
+      {variant === 'b' && <CandidatesB candidates={pred.candidates} dark={false} accent={accent} onTap={()=>{}} />}
+      {variant === 'c' && <CandidatesC candidates={pred.candidates} dark={false} accent={accent} onTap={()=>{}} />}
+      <div style={{
+        marginTop: 6, padding: '0 16px',
+        fontFamily: 'ui-monospace, "SF Mono", monospace', fontSize: 10,
+        color: 'rgba(0,0,0,0.45)', letterSpacing: 0.4,
+        display: 'flex', justifyContent: 'space-between',
+      }}>
+        <span>buffer: ktk · reading: きたく</span>
+        <span>top: 帰宅 (0.78)</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
