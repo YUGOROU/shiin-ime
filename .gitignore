@@ -13,6 +13,7 @@ training/*.log
 # Claude internal docs and tool files
 MEMORY.md
 *HANDOFF*.md
+ROADMAP.md
 .claude/
 .agents/
 
