@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="design/assets/hero.svg" alt="Shiin IME — 母音を打たない日本語キーボード" width="100%">
+  <img src="design/assets/hero-ja.svg" alt="Shiin IME — 母音を打たない日本語キーボード" width="100%">
 </p>
 
 <p align="center">
